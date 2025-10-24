@@ -26,15 +26,37 @@ app.get("/api/docs.json", (_req: Request, res: Response) => {
   res.json(openapi);
 });
 
-// Swagger UI (loads the spec from /api/docs.json)
-app.use(
-  "/api/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(undefined, {
-    swaggerOptions: { url: "/api/docs.json" },
-    customSiteTitle: "API Docs",
-  })
-);
+// Swagger UI via CDN to avoid static asset issues on serverless
+app.get("/api/docs", (_req: Request, res: Response) => {
+  const html = `<!DOCTYPE html>
+  <html lang="es">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>API Docs</title>
+      <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+      <style>body { margin: 0; background: #fff; }</style>
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+      <script>
+        window.onload = () => {
+          window.ui = SwaggerUIBundle({
+            url: '/api/docs.json',
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis],
+            layout: 'BaseLayout',
+            docExpansion: 'none',
+            defaultModelsExpandDepth: -1,
+          });
+        };
+      </script>
+    </body>
+  </html>`;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(html);
+});
 
 // Error handler (must be last)
 app.use(errorHandler);
