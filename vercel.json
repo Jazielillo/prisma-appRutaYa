@@ -1,9 +1,18 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "vercel-node@3.0.0",
-      "includeFiles": "{generated/prisma/**,node_modules/.prisma/client/**,node_modules/@prisma/client/**,prisma/schema.prisma}"
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "generated/prisma/**",
+          "node_modules/.prisma/client/**",
+          "node_modules/@prisma/client/**",
+          "prisma/schema.prisma"
+        ]
+      }
     }
-  }
+  ],
+  "routes": [{ "src": "/api/(.*)", "dest": "api/index.ts" }]
 }
