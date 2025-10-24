@@ -11,17 +11,21 @@ async function seed() {
 
   // 2) Rutas (create placeholders for punto inicial/final, update after creating puntos)
   const rutasData = [
-    { descripcion: "Ruta Centro - Norte" },
-    { descripcion: "Ruta Centro - Sur" },
-    { descripcion: "Ruta Este - Oeste" },
+    { descripcion: "Ruta Centro - Norte", nombre: "Prueba" },
+    { descripcion: "Ruta Centro - Sur", nombre: "Prueba 2" },
+    { descripcion: "Ruta Este - Oeste", nombre: "Prueba 3" },
   ];
 
-  const rutas = [] as { id: number; descripcion: string }[];
+  const rutas = [] as { id: number; descripcion: string; nombre: string }[];
   for (const r of rutasData) {
     const created = await prisma.rutas.create({
-      data: { descripcion: r.descripcion, id_punto_inicial: 0, id_punto_final: 0 },
+      data: { descripcion: r.descripcion, nombre: r.nombre },
     });
-    rutas.push({ id: created.id, descripcion: created.descripcion });
+    rutas.push({
+      id: created.id,
+      descripcion: created.descripcion,
+      nombre: r.nombre,
+    });
   }
 
   // 3) Puntos_ruta for each ruta, then update ruta with first/last
@@ -37,10 +41,6 @@ async function seed() {
       });
       puntos.push(p.id);
     }
-    await prisma.rutas.update({
-      where: { id: ruta.id },
-      data: { id_punto_inicial: puntos[0], id_punto_final: puntos[puntos.length - 1] },
-    });
   }
 
   // 4) Vehiculos (ensure uniqueness by no_placas)
@@ -51,10 +51,18 @@ async function seed() {
   ];
   const vehiculos = [] as { id: number; no_placas: string }[];
   for (const v of vehiculosData) {
-    const existing = await prisma.vehiculos.findFirst({ where: { no_placas: v.no_placas } });
+    const existing = await prisma.vehiculos.findFirst({
+      where: { no_placas: v.no_placas },
+    });
     const created =
       existing ??
-      (await prisma.vehiculos.create({ data: { no_placas: v.no_placas, no_unidad: v.no_unidad, capacidad: v.capacidad } }));
+      (await prisma.vehiculos.create({
+        data: {
+          no_placas: v.no_placas,
+          no_unidad: v.no_unidad,
+          capacidad: v.capacidad,
+        },
+      }));
     vehiculos.push({ id: created.id, no_placas: created.no_placas });
   }
 
@@ -66,8 +74,11 @@ async function seed() {
   ];
   const tipos = [] as { id: number; descripcion: string }[];
   for (const t of tiposData) {
-    const existing = await prisma.tipos_reporte.findFirst({ where: { descripcion: t.descripcion } });
-    const created = existing ?? (await prisma.tipos_reporte.create({ data: t }));
+    const existing = await prisma.tipos_reporte.findFirst({
+      where: { descripcion: t.descripcion },
+    });
+    const created =
+      existing ?? (await prisma.tipos_reporte.create({ data: t }));
     tipos.push({ id: created.id, descripcion: created.descripcion });
   }
 
@@ -180,14 +191,18 @@ async function seed() {
           id_vehiculo: t.id_vehiculo,
           id_turno: t.id,
           id_tipo_reporte: tipo.id,
-          descripcion: `Reporte ${i + 1} del turno ${t.id} (${tipo.descripcion})`,
+          descripcion: `Reporte ${i + 1} del turno ${t.id} (${
+            tipo.descripcion
+          })`,
           estado: estados[(t.id + i) % estados.length],
         },
       });
     }
   }
 
-  console.log("Seed completado: roles, rutas+puntos, vehiculos, tipos, usuarios, turnos, reportes.");
+  console.log(
+    "Seed completado: roles, rutas+puntos, vehiculos, tipos, usuarios, turnos, reportes."
+  );
 }
 
 seed()
