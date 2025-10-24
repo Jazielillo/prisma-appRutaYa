@@ -21,8 +21,20 @@ app.get("/health", (_req: Request, res: Response) => {
 // API routes
 app.use("/api", apiRoutes);
 
-// Swagger docs
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(openapi));
+// Serve OpenAPI JSON explicitly (helps in serverless/platforms)
+app.get("/api/docs.json", (_req: Request, res: Response) => {
+  res.json(openapi);
+});
+
+// Swagger UI (loads the spec from /api/docs.json)
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(undefined, {
+    swaggerOptions: { url: "/api/docs.json" },
+    customSiteTitle: "API Docs",
+  })
+);
 
 // Error handler (must be last)
 app.use(errorHandler);
