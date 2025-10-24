@@ -16,22 +16,91 @@ datasource db {
 
 model Usuarios {
   id Int @id @default(autoincrement())
-  apellido_paterno String 
+  apellido_paterno String
   apellido_materno String
   nombre String
   email String @unique
   password String  @db.Text
   id_rol Int
-  no_licencia Int? @unique
+  no_licencia Int?
   id_ruta Int
 
-  // Relation to Rol
+  // Relations
   rol Roles @relation(fields: [id_rol], references: [id])
+  ruta Rutas @relation(fields: [id_ruta], references: [id])
+
+  turnos Turnos[]
+  reportes Reportes[]
 }
 
 model Roles {
   id Int @id @default(autoincrement())
-  nombre String @unique
+  rol String @unique
 
   usuarios Usuarios[]
+}
+
+model Rutas {
+  id Int @id @default(autoincrement())
+  descripcion String
+  id_punto_inicial Int
+  id_punto_final Int
+
+  puntos Puntos_ruta[]
+  usuarios Usuarios[]
+}
+
+model Puntos_ruta {
+  id Int @id @default(autoincrement())
+  id_ruta Int
+  altitud Float?
+  longitud Float?
+
+  ruta Rutas @relation(fields: [id_ruta], references: [id])
+}
+
+model Vehiculos {
+  id Int @id @default(autoincrement())
+  no_placas String
+  no_unidad String
+  capacidad Int
+
+  turnos Turnos[]
+  reportes Reportes[]
+}
+
+model Turnos {
+  id Int @id @default(autoincrement())
+  id_chofer Int
+  id_vehiculo Int
+  descripcion String?
+  hora_inicio DateTime?
+  hora_fin DateTime?
+
+  chofer Usuarios @relation(fields: [id_chofer], references: [id])
+  vehiculo Vehiculos @relation(fields: [id_vehiculo], references: [id])
+
+  reportes Reportes[]
+}
+
+model Tipos_reporte {
+  id Int @id @default(autoincrement())
+  descripcion String
+
+  reportes Reportes[]
+}
+
+model Reportes {
+  id Int @id @default(autoincrement())
+  id_chofer Int
+  id_vehiculo Int
+  id_turno Int
+  id_tipo_reporte Int
+  descripcion String
+  estado String
+
+  chofer Usuarios @relation(fields: [id_chofer], references: [id])
+  vehiculo Vehiculos @relation(fields: [id_vehiculo], references: [id])
+  turno Turnos @relation(fields: [id_turno], references: [id])
+  tipo Tipos_reporte @relation(fields: [id_tipo_reporte], references: [id])
 }
