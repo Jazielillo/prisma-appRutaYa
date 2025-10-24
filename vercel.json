@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs18.x",
+      "includeFiles": [
+        "generated/prisma/**",
+        "node_modules/.prisma/client/**",
+        "node_modules/@prisma/client/**",
+        "prisma/schema.prisma"
+      ]
+    }
+  }
+}
