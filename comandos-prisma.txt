@@ -1,0 +1,6 @@
+
+--Para aplicar los cambios al esquema de db, Se debe cambiar el nombre de la migración ya que es como un push en git:
+npx prisma migrate dev --name init
+
+--Para generar el cliente de prisma, se corre cuando se hacen cambios en el esquema
+npx prisma generate
