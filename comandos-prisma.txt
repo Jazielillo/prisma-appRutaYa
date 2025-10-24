@@ -4,3 +4,9 @@ npx prisma migrate dev --name init
 
 --Para generar el cliente de prisma, se corre cuando se hacen cambios en el esquema
 npx prisma generate
+
+--Para hacer reset cuando no se quiere hacer la migración por relaciones agreagadas u otro factor
+npx prisma migrate reset
+
+--Para poblar la bd desde /prisma/seed
+npx prisma db seed

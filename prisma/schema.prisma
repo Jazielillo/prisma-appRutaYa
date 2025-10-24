@@ -24,4 +24,14 @@ model Usuarios {
   id_rol Int
   no_licencia Int? @unique
   id_ruta Int
+
+  // Relation to Rol
+  rol Roles @relation(fields: [id_rol], references: [id])
+}
+
+model Roles {
+  id Int @id @default(autoincrement())
+  nombre String @unique
+
+  usuarios Usuarios[]
 }
